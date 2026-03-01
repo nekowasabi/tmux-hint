@@ -22,6 +22,8 @@ type patternDef struct {
 // Built-in patterns ordered by priority (more specific first)
 var patterns = []patternDef{
 	{"url", `https?://[^\s\])'">]+`},
+	// homepath: ~ prefixed paths (e.g. ~/repos/tmux-hint, ~user/dir)
+	{"homepath", `~[a-zA-Z0-9_.-]*/[^\s,;'")\]]+`},
 	{"path", `(?:^|[\s,])((?:/[^\s/,;'")\]]+)+)`},
 	{"ip", `\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b`},
 	{"uuid", `[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}`},
