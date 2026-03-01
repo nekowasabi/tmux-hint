@@ -4,7 +4,7 @@ A lightweight Go plugin for tmux that overlays hints on visible pane text, letti
 
 ## Features
 
-- **Copy to clipboard** — auto-detects `pbcopy` (macOS), `wl-copy` (Wayland), or `xclip` (X11), and also writes to the tmux buffer
+- **Copy to clipboard** — auto-detects `clip.exe` (WSL), `pbcopy` (macOS), `wl-copy` (Wayland), or `xclip` (X11), and also writes to the tmux buffer
 - **Vim-mode jump** — press `v` + a hint letter to enter tmux copy-mode and jump to the matched line
 - **Overlay display** — rendered via `tmux display-popup`, no permanent pane splitting
 - **Supported patterns** — URLs, file paths, IP addresses, UUIDs, git SHAs, numeric strings
@@ -14,6 +14,7 @@ A lightweight Go plugin for tmux that overlays hints on visible pane text, letti
 
 - tmux 3.2+
 - Go 1.21+
+- WSL2: `clip.exe` is used automatically (no extra setup needed)
 
 ## Installation
 

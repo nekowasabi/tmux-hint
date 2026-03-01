@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 )
 
 // CopyToClipboard copies text to the system clipboard.
-// macOS: pbcopy, Wayland: wl-copy, X11: xclip
+// macOS: pbcopy, WSL: clip.exe, Wayland: wl-copy, X11: xclip
 func CopyToClipboard(text string) error {
 	var cmd *exec.Cmd
 
@@ -17,8 +18,9 @@ func CopyToClipboard(text string) error {
 	case "darwin":
 		cmd = exec.Command("pbcopy")
 	case "linux":
-		// Detect Wayland vs X11
-		if isWayland() {
+		if isWSL() {
+			cmd = exec.Command("clip.exe")
+		} else if isWayland() {
 			cmd = exec.Command("wl-copy")
 		} else {
 			cmd = exec.Command("xclip", "-selection", "clipboard")
@@ -32,6 +34,16 @@ func CopyToClipboard(text string) error {
 		return fmt.Errorf("clipboard copy failed: %w", err)
 	}
 	return nil
+}
+
+// isWSL returns true if running inside Windows Subsystem for Linux
+func isWSL() bool {
+	data, err := os.ReadFile("/proc/version")
+	if err != nil {
+		return false
+	}
+	lower := strings.ToLower(string(data))
+	return strings.Contains(lower, "microsoft") || strings.Contains(lower, "wsl")
 }
 
 // isWayland returns true if running under a Wayland session
