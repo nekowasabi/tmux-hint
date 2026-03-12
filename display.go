@@ -15,6 +15,10 @@ const (
 	colorMatchText = "\033[1;31m" // bold red - matched text
 )
 
+// maxHighlightLen limits how many bytes of match text (after the hint) are colored red.
+// Longer matches show the excess portion in normal color to preserve readability.
+const maxHighlightLen = 24
+
 // RenderOverlay creates the display content with hints highlighted using ANSI escape codes.
 // Each match is annotated: the hint char is shown in bold yellow, the remaining text in bold red.
 func RenderOverlay(lines []Line, matches []Match) string {
@@ -53,6 +57,11 @@ func RenderOverlay(lines []Line, matches []Match) string {
 				end = len(content)
 			}
 
+			// Skip if this match overlaps with a previous one (defensive guard)
+			if start < offset {
+				continue
+			}
+
 			// Write text before this match (unadjusted)
 			if start > offset {
 				sb.WriteString(content[offset:start])
@@ -67,9 +76,17 @@ func RenderOverlay(lines []Line, matches []Match) string {
 				sb.WriteString(colorReset)
 				// Remaining match text after the hint chars
 				if hintLen < len(m.Text) {
-					sb.WriteString(colorMatchText)
-					sb.WriteString(m.Text[hintLen:])
-					sb.WriteString(colorReset)
+					remaining := m.Text[hintLen:]
+					if len(remaining) > maxHighlightLen {
+						sb.WriteString(colorMatchText)
+						sb.WriteString(remaining[:maxHighlightLen])
+						sb.WriteString(colorReset)
+						sb.WriteString(remaining[maxHighlightLen:])
+					} else {
+						sb.WriteString(colorMatchText)
+						sb.WriteString(remaining)
+						sb.WriteString(colorReset)
+					}
 				}
 			}
 

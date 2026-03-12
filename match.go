@@ -100,5 +100,32 @@ func FindMatches(lines []Line) []Match {
 		return results[i].Col < results[j].Col
 	})
 
+	results = removeContainedMatches(results)
+
 	return results
+}
+
+// removeContainedMatches removes matches that are fully contained within a larger match on the same line.
+// For example, if "~/repos" and "~/repos/tmux-hint/main.go" both match on the same line,
+// the shorter "~/repos" is removed because it is a substring of the longer match.
+func removeContainedMatches(matches []Match) []Match {
+	out := make([]Match, 0, len(matches))
+	for i, m := range matches {
+		mEnd := m.Col + len(m.Text)
+		dominated := false
+		for j, other := range matches {
+			if i == j || other.Line != m.Line {
+				continue
+			}
+			otherEnd := other.Col + len(other.Text)
+			if other.Col <= m.Col && mEnd <= otherEnd && (other.Col < m.Col || mEnd < otherEnd) {
+				dominated = true
+				break
+			}
+		}
+		if !dominated {
+			out = append(out, m)
+		}
+	}
+	return out
 }
